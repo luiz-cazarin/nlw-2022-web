@@ -7,7 +7,7 @@ import logoImg from "./assets/logoNlwEsports.svg";
 import { GameBanner } from "./components/GameBanner";
 import { CreateAdBanner } from "./components/CreateAdBanner";
 import { GameController } from "phosphor-react";
-import { Input } from "./components/Form/input";
+import { Input } from "../src/components/Form/Input"
 
 interface Game {
   id: string;
@@ -157,7 +157,10 @@ function App() {
                 Costumo me conectar ao chat de voz
               </div>
               <footer className="mt-4 flex justify-end gap-4">
-                <Dialog.Close type="button" className="bg-zinc-500 px-5 h-12 rounded-md font-semibold hover:bg-zinc-600">
+                <Dialog.Close
+                  type="button"
+                  className="bg-zinc-500 px-5 h-12 rounded-md font-semibold hover:bg-zinc-600"
+                >
                   Cancelar
                 </Dialog.Close>
                 <button
