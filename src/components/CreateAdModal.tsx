@@ -6,6 +6,7 @@ import { Input } from "./Form/Input";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { useEffect, useState, FormEvent } from "react";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import axios from "axios";
 
 interface Game {
   id: string;
@@ -15,21 +16,38 @@ interface Game {
 export function CreateAdModal() {
   const [games, setGames] = useState<Game[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
+  const [useVoiceChannel, setUseVoiceChannel] = useState(false);
+  const [game, setGame] = useState("");
 
+  console.log(game);
   useEffect(() => {
-    fetch("http://localhost:3333/games")
-      .then((res) => res.json())
-      .then((data) => {
-        setGames(data);
-      });
+    axios("http://localhost:3333/games").then((response) => {
+      setGames(response.data);
+    });
   }, []);
 
-  function handleCreateAd(event: FormEvent) {
+  async function handleCreateAd(event: FormEvent) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     const data = Object.fromEntries(formData);
     console.log(data);
-    console.log(weekDays);
+    if (!data.name) {
+      return;
+    }
+    try {
+      await axios.post(`http://localhost:3333/games/${game}/ads`, {
+        name: data.name,
+        yearsPlaying: Number(data.yearsPlaying),
+        discord: data.discord,
+        weekDays: weekDays.map(Number),
+        hourStart: data.hourStart,
+        hourEnd: data.hourEnd,
+        useVoiceChannel: useVoiceChannel,
+      });
+      alert("O anuncio foi criado com sucesso");
+    } catch (error) {
+      alert("Erro ao criar o anúncio: " + error);
+    }
   }
 
   return (
@@ -44,7 +62,11 @@ export function CreateAdModal() {
             <label htmlFor="game" className="font-semibold">
               Qual o game?
             </label>
-            <Select.Root>
+            <Select.Root
+              onValueChange={(data) => {
+                setGame(data);
+              }}
+            >
               <Select.Trigger className="w-full py-2 px-4 flex items-center justify-between bg-zinc-900 text-zinc-400">
                 <Select.Value placeholder="Selecione o game que deseja jogar" />
                 <Select.Icon>
@@ -196,7 +218,16 @@ export function CreateAdModal() {
           </div>
 
           <label className="mt-2 flex items-center gap-2 text-sm">
-            <Checkbox.Root className="w-6 h-6 rounded p-1 bg-zinc-900">
+            <Checkbox.Root
+              onCheckedChange={(checked) => {
+                if (checked === true) {
+                  setUseVoiceChannel(true);
+                } else {
+                  setUseVoiceChannel(false);
+                }
+              }}
+              className="w-6 h-6 rounded p-1 bg-zinc-900"
+            >
               <Checkbox.Indicator>
                 <Check className="w-4 h-4 text-emerald-400"></Check>
               </Checkbox.Indicator>
