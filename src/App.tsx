@@ -7,6 +7,9 @@ import logoImg from "./assets/logoNlwEsports.svg";
 import { GameBanner } from "./components/GameBanner";
 import { CreateAdBanner } from "./components/CreateAdBanner";
 import { CreateAdModal } from "./components/CreateAdModal";
+import "keen-slider/keen-slider.min.css";
+import { useKeenSlider } from "keen-slider/react";
+
 import axios from "axios";
 
 interface Game {
@@ -20,6 +23,16 @@ interface Game {
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
+
+  const [sliderRef] = useKeenSlider({
+    loop: false,
+    mode: "snap",
+    rtl: false,
+    slides: {
+      perView: 5,
+      spacing: 15,
+    },
+  });
 
   useEffect(() => {
     axios("http://localhost:3333/games").then((response) => {
@@ -38,15 +51,17 @@ function App() {
         </span>{" "}
         está aqui.
       </h1>
-      <div className="grid grid-cols-6 gap-6 mt-16">
+      <div ref={sliderRef} className="keen-slider mt-16">
         {games.map((game) => {
           return (
-            <GameBanner
-              key={game.id}
-              bannerUrl={game.bannerUrl}
-              title={game.title}
-              adsCount={game._count.ads}
-            />
+            <div className="keen-slider__slide">
+              <GameBanner
+                key={game.id}
+                bannerUrl={game.bannerUrl}
+                title={game.title}
+                adsCount={game._count.ads}
+              />
+            </div>
           );
         })}
       </div>
